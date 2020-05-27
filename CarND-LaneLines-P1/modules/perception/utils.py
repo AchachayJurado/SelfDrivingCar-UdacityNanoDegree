@@ -46,14 +46,8 @@ def ProcessImage(original_image, xsize, ysize, return_process):
     min_line_len = 120
     max_line_gap = 160
 
-    # lines_in_image = HoughLines(
-    #     region_of_interest, roh, theta, threshold, min_line_len, max_line_gap)
-    lines_in_image = improved_hough_lines(
+    lines_in_image = ImprovedHoughLines(
         region_of_interest, roh, theta, threshold, min_line_len, max_line_gap)
-    # lines = fhough_lines(
-    # region_of_interest, roh, theta, threshold, min_line_len, max_line_gap)
-
-    # lines_in_image = imgmitlines(region_of_interest, lines)
 
     # 6.Alpha blend the lines in image to the original image
     alpha = 0.8  # weight of the first array elements  (original_image)
@@ -206,7 +200,7 @@ def improved_lines(left_lines, right_lines, shape):
     return left_lines, right_lines
 
 
-def improved_hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
+def ImprovedHoughLines(img, rho, theta, threshold, min_line_len, max_line_gap):
     lines = cv2.HoughLinesP(img, rho, theta, threshold, np.array([]), minLineLength=min_line_len,
                             maxLineGap=max_line_gap)
 
@@ -225,102 +219,4 @@ def improved_hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap)
     DrawLine(line_img, right_lines, right_line_color)
 
     return line_img
-
 ################################################################################################
-################################################################################################
-
-
-def slope(x1, y1, x2, y2):
-    return (y1 - y2) / (x1 - x2)
-
-
-def separate_lines(lines):
-    right = []
-    left = []
-
-    print(lines[:, 0])
-    for x1, y1, x2, y2 in lines[:, 0]:
-        print(x1, y1, x2, y2)
-        m = slope(x1, y1, x2, y2)
-        if m >= 0:
-            right.append([x1, y1, x2, y2, m])
-        else:
-            left.append([x1, y1, x2, y2, m])
-    return right, left
-
-
-def reject_outliers(data, cutoff, threshold=0.08):
-    data = np.array(data)
-    data = data[(data[:, 4] >= cutoff[0]) & (data[:, 4] <= cutoff[1])]
-    m = np.mean(data[:, 4], axis=0)
-    return data[(data[:, 4] <= m+threshold) & (data[:, 4] >= m-threshold)]
-
-
-def lines_linreg(lines_array):
-    print(lines_array.shape)
-    x = np.reshape(lines_array[:, :, [0, 2]], (1, len(lines_array) * 2))[0]
-    print(len(x))
-    y = np.reshape(lines_array[:, :, [1, 3]], (1, len(lines_array) * 2))[0]
-    A = np.vstack([x, np.ones(len(x))]).T
-    m, c = np.linalg.lstsq(A, y)[0]
-    x = np.array(x)
-    print(len(y))
-    y = np.array(x * m + c)
-    return x, y, m, c
-
-
-def extend_point(x1, y1, x2, y2, length):
-    line_len = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
-    x = x2 + (x2 - x1) / line_len * length
-    y = y2 + (y2 - y1) / line_len * length
-    return x, y
-
-
-def imgmitlines(img, lines):
-    right_lines, left_lines = separate_lines(lines)
-    if right_lines and left_lines:
-        right = reject_outliers(right_lines,  cutoff=(0.45, 0.75))
-        left = reject_outliers(left_lines, cutoff=(-0.85, -0.6))
-    # This variable represents the top-most point in the image where we can reasonable draw a line to.
-    x, y, m, c = lines_linreg(lines)
-    # # Calculate the top point using the slopes and intercepts we got from linear regression.
-    min_y = np.min(y)
-    # # Repeat this process to find the bottom left point
-    top_point = np.array([(min_y - c) / m, min_y], dtype=int)
-    max_y = np.max(y)
-    bot_point = np.array([(max_y - c) / m, max_y], dtype=int)
-    x1e, y1e = extend_point(
-        bot_point[0], bot_point[1], top_point[0], top_point[1], -1000)  # bottom point
-    x2e, y2e = extend_point(
-        bot_point[0], bot_point[1], top_point[0], top_point[1],  1000)  # top point
-
-    line = np.array([[x1e, y1e, x2e, y2e]])
-    line_p = np.array([line], dtype=np.int32)
-
-    left_line_color = [255, 0, 255]
-    right_line_color = [0, 245, 245]
-
-    line_img = np.zeros((img.shape[0], img.shape[1], 3), dtype=np.uint8)
-    # DrawLine(line_img, left_lines, left_line_color)
-    # DrawLine(line_img, right_lines, right_line_color)
-    # DrawLine(line_img, line_p, right_line_color)
-    draw_lines(line_img, lines, thickness=3)
-    draw_lines(line_img, right, thickness=3)
-    return line_img
-
-
-def fhough_lines(image, rho, theta, threshold, min_line_len, max_line_gap):
-    rho = 2
-    theta = np.pi/180
-    threshold = 50
-    min_line_len = 120
-    max_line_gap = 150
-    lines = cv2.HoughLinesP(image, rho, theta, threshold, np.array(
-        []), minLineLength=min_line_len, maxLineGap=max_line_gap)
-    return lines
-
-
-def draw_lines(image, lines, color=[255, 0, 0], thickness=2):
-    for line in lines:
-        for x1, y1, x2, y2 in line:
-            cv2.line(image, (x1, y1), (x2, y2), color, thickness)
