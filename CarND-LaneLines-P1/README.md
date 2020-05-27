@@ -1,56 +1,51 @@
-# **Finding Lane Lines on the Road** 
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
+# **Finding Lane Lines on the Road**
 
-<img src="examples/laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
+Objectives
+---
+- To create a pipeline to process an image in order to find lane lines.
+- To use the pipeline in a set of consecutive images (video).
+- To report the steps taken into account in the pipeline.
+- To comment on the possible factors that intervene in the solution of this problem.
+<img src="./test_images_output/originalVsProcessed.jpg" width="800"/>
 
 Overview
 ---
+The problem to be solve within this project is the one of the perception of the possible route to be driven by the car. As we drive, we normally interact with the visual environment (road) containing lane lines and try to steer and control the speed of the car so that we can follow such lane lines.
 
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
+In a self driving car, the cameras serve as the visual input. However, the images that the camera provides need to be processed in order to isolate the parts of our interest:
+1. Get rid of the colors in the image by converting it to a grey scale.
+2. Smooth the image, by applying a Gaussian filter
+3. Find the edges with the help of Canny Feature Detection
+4. Find the region of interest based on the car ego position and the field of view.
+5. Find lines within the region of interest, using Hough Line Transform.
+6. Draw the found lane lines in the original image.
 
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
+The stepwise functionality is shown as follows:
+<img src="./test_images_output/process_solidYellowCurve2.jpg" width="800"/>
 
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
+To do so, Python and OpenCV has being used.
+The file containing the application of the pipeline for the /test_images and /test_videos is find_ego_lanes.py
+When executing the script, find the outputs in /test_image_output and /test_video_output directories.
+To find more details about the parameters of the filters and transforms used, refer to /modules/perception/utils.py
 
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
 
-
-Creating a Great Writeup
+Shortcomings
 ---
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
-
-1. Describe the pipeline
-
-2. Identify any shortcomings
-
-3. Suggest possible improvements
-
-We encourage using images in your writeup to demonstrate how your pipeline works.  
-
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
+The parameters in Hough Lines Transform are of a high importance given that the lanes can be solid or dashed, in which case multiple lines can appear and be mistakenly taken as part of the ego lane. An initial version of HoughLineTransform was implemented, to be later replaced by an ImprovedHoughLines() that divides the region of interest in two parts. In this way, the left side of the ego car is merged into a left lane line output and the corresponding is done for the right side.
 
 
-The Project
+Improvements and future work
 ---
+When processing the videos, once could see that the influence of a high curvature in the lanes produces a lot of noise in the output. Some efforts were made in order to accomplish a better output by tunning the parameters. However, a better approach may be to not only recognize straight lines using HoughLineTransform but deepen into some regression techniques to enable curved lanes recognition.
 
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you should install the starter kit to get started on this project. ##
 
-**Step 1:** Set up the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) if you haven't already.
+Importance of a general architecture
+---
+In order to have a clear understanding of the problem to be solved, I have taken the initiative of separating the project in modules depending on the answered question. In this case, we wanted to find the ego car lane lines on the road, which is a problem of perception of the environment, therefore this solution is found under that module.
+It may not seem of a big importance now, but when the project grows, it is important to have a general overview, which can be achieved by having a good architecture.
 
-**Step 2:** Open the code in a Jupyter Notebook
 
-You will complete the project code in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out [Udacity's free course on Anaconda and Jupyter Notebooks](https://classroom.udacity.com/courses/ud1111) to get started.
 
-Jupyter is an Ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, use terminal to navigate to your project directory and then run the following command at the terminal prompt (be sure you've activated your Python 3 carnd-term1 environment as described in the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) installation instructions!):
-
-`> jupyter notebook`
-
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
-
-**Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
+# **How to run the project**
+Just run the find_ego_lanes.py script and the following output will be gotten:
+<img src="./RunScript.png" width="500"/>
