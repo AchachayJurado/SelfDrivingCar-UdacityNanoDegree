@@ -98,7 +98,7 @@ class CameraModel:
             )
 
             # save to file
-            save_image(chessboard, fname, "calibration_")
+            save_image(chessboard, fname, "calibrated_")
 
             col = int(idx % n_columns)
             row = int(math.floor(idx / n_columns))-1
