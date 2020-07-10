@@ -113,7 +113,8 @@ class Camera():
             row = math.floor(idx / n_columns)
             axs[row, col].axis("off")
 
-        out_file_name = os.path.join("output_images", "calibration.png")
+        out_file_name = os.path.join(
+            "output_images", "chessboard_calibration.png")
         plt.savefig(out_file_name)
         print(
             "Found corners saved for each image in  output_images/ and a summary in output_images/chessboard_calibration.png")

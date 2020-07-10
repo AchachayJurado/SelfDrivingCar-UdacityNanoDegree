@@ -1,11 +1,6 @@
 ## Advanced Lane Lines
 
-### Author: Natalia Jurado
-
 ---
-
-**Advanced Lane Finding Project**
-
 The goals / steps of this project are the following:
 
 * Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
@@ -19,14 +14,14 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image0]: ./output_images/chessboard_calibration.png "Calibration"
+[image0]: ./output_images/calibrated_calibration3.jpg "Single Image Calibration"
 [image1]: ./examples/undistort_output.png "Undistorted"
-[image1]: ./examples/undistort_output.png "Undistorted"
-[image2]: ./test_images/test1.jpg "Road Transformed"
-[image3]: ./examples/binary_combo_example.jpg "Binary Example"
-[image4]: ./examples/warped_straight_lines.jpg "Warp Example"
-[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image6]: ./examples/example_output.jpg "Output"
+[image2]: ./examples/undistort_output.png "Undistorted"
+[image3]: ./test_images/test1.jpg "Road Transformed"
+[image4]: ./examples/binary_combo_example.jpg "Binary Example"
+[image5]: ./examples/warped_straight_lines.jpg "Warp Example"
+[image6]: ./examples/color_fit_lines.jpg "Fit Visual"
+[image7]: ./examples/example_output.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
 
 ---
@@ -36,17 +31,23 @@ The goals / steps of this project are the following:
 The camera calibration function is contained in the `camera_calibration.py` in the method `Camera`.
 
 #### Calibration Process
-- Preparing the "object points", which will be the (x,y,z) coordinates of the chessboard corners.
+1. Preparing the "object points", which will be the (x,y,z) coordinates of the chessboard corners.
   I am assuming that the chessboard is fixed to on plane (x, y), therefore z=0. This is done so that the object points are the same for each calibration image.
-- Iterating through the calibration images to look for corners using `cv2.findChessboardCorners()` on gray images.
-- In case corners are detected an objpoint will be appended to a list of matches: `objpoints` for 3D and `imgpoints` for 2D points.
+2. Iterating through the calibration images to look for corners using `cv2.findChessboardCorners()` on gray images.
+3. In case corners are detected an objpoint will be appended to a list of matches: `objpoints` for 3D and `imgpoints` for 2D points.
   The `objpoint` is a replicated aarray of coordinates.
-- In order to keep all the 2D and 3D points found, a pickel file is created.
-- At the end those output `objpoints` and `imgpoints` are used to computer the camera calibration and distortion coefficients using `Camera.getCalibration()`
+4. In order to keep all the 2D and 3D points found, a pickel file is created.
+5. At the end those output `objpoints` and `imgpoints` are used to computer the camera calibration and distortion coefficients using `Camera.getCalibration()`
   method with the usage of `cv2.   calibrateCamera` function. This computation depends only on the image size, which is cached from the last image (width, height).
-  The distortion correction is applied to the test images using the `Camera.undistrot` method running `cv2.undistort()` function to obtain the results:
 
-![camera calibration][image0]
+The distortion correction is applied to the test images using the `Camera.undistrot` method running `cv2.undistort()` function to obtain the results:
+  <p align="center">
+  <img width="460" height="300" src="./output_images/chessboard_calibration.png">
+</p>
+
+Here an example of a single image calibration
+![single image camera calibration][image0]
+
 
 An example of the distortion correction can be found on the next section.
 
