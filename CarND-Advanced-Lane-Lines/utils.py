@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-from perception.calibration import GetCalibratedCamera
+from perception.camera_calibration import GetCalibratedCamera
 
 
 def CalibrateCamera():

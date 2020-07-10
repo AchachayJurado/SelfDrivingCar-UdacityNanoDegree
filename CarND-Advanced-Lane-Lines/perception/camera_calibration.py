@@ -8,14 +8,16 @@ import matplotlib.pyplot as plt
 from .cache import Cache
 from .save import save_image
 
+CALIBRATION_PATH = glob.glob("camera_cal/calibration*.jpg")
 
-class CameraModel:
-    """Computes objpoints,imgpoints pair based on chessboard images for calibration"""
+
+class Camera():
+    "Creates a camera model by computing objpoints,imgpoints pair based on chessboard images for calibration"
 
     # Arrays to store object points and image points from all the images.
     objpoints = []  # 3d points in real world space.
     imgpoints = []  # 2d points in image plane.
-    images = []  # images from which these points where computed.
+    images = []     # images from which these points where computed.
 
     # Calibration
     cal_w = None
@@ -26,9 +28,9 @@ class CameraModel:
     def __init__(self):
         self.nx = 9
         self.ny = 6
-        self.target_images = glob.glob("camera_cal/calibration*.jpg")
+        self.images_to_calibrate = CALIBRATION_PATH
 
-        # cache
+        # Cache
         self.cache = Cache("calibration.p")
 
     def save(self):
@@ -53,20 +55,19 @@ class CameraModel:
             return
         print("Running calibration on %d images ..." % len(self.target_images))
 
-        # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
+        # Prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
         objp = np.zeros((self.nx * self.ny, 3), np.float32)
         objp[:, :2] = np.mgrid[0: self.nx, 0: self.ny].T.reshape(-1, 2)
 
         # Step through the list and search for chessboard corners
-        for fname in self.target_images:
-            self.calibrate_single(fname, objp)
+        for file_name in self.target_images:
+            self.calibrate_single_image(file_name, objp)
 
         # Update cache
         self.save()
 
-    def calibrate_single(self, fname, objp):
-        # Log.info("file: " + fname)
-        img = cv2.imread(fname)
+    def calibrate_single_image(self, file_name, objp):
+        img = cv2.imread(file_name)
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         # Find the chessboard corners
@@ -75,11 +76,12 @@ class CameraModel:
 
         # If found, save object points, image points
         if ret == True:
-            self.images.append(fname)
+            self.images.append(file_name)
             self.objpoints.append(objp)
             self.imgpoints.append(corners)
         else:
-            print("cv2.findChessboardCorners was not able to process file: %s" % fname)
+            print(
+                "cv2.findChessboardCorners was not able to process file: %s" % file_name)
 
     def display_calibration(self):
         n_images = len(self.images)
@@ -90,15 +92,15 @@ class CameraModel:
         f.tight_layout()
 
         # Draw and display the corners
-        for idx, fname in enumerate(self.images):
-            # draw on image
-            img = cv2.imread(fname)
+        for idx, file_name in enumerate(self.images):
+            # Draw the corners on the image
+            img = cv2.imread(file_name)
             chessboard = cv2.drawChessboardCorners(
                 img, (self.nx, self.ny), self.imgpoints[idx], True
             )
 
-            # save to file
-            save_image(chessboard, fname, "calibrated_")
+            # Save back to a file with calibrated_ prefix
+            save_image(chessboard, file_name, "calibrated_")
 
             col = int(idx % n_columns)
             row = int(math.floor(idx / n_columns))-1
@@ -111,10 +113,10 @@ class CameraModel:
             row = math.floor(idx / n_columns)
             axs[row, col].axis("off")
 
-        out_fname = os.path.join("output_images", "calibration.png")
-        plt.savefig(out_fname)
+        out_file_name = os.path.join("output_images", "calibration.png")
+        plt.savefig(out_file_name)
         print(
-            "Found corners and calibration output saved in output_images/calibration.png")
+            "Found corners saved for each image in  output_images/ and a summary in output_images/chessboard_calibration.png")
 
         plt.show()
 
@@ -145,46 +147,6 @@ class CameraModel:
 
 
 def GetCalibratedCamera():
-    camera = CameraModel()
+    camera = Camera()  # Creates a camera model by computing objpoints,imgpoints pair based on chessboard images for calibration
     camera.calibrate()
     return camera
-
-
-class WarpMachine:
-    h = 720
-    left = 210
-    right = 1110
-    top = 460
-    top_left = 580
-    top_right = 705
-    dst_l = 320
-    dst_r = 960
-
-    def __init__(self):
-        h = self.h
-        l = self.left
-        r = self.right
-        t = self.top
-        tl = self.top_left
-        tr = self.top_right
-        dl = self.dst_l
-        dr = self.dst_r
-
-        self.src = np.float32([[l, h], [tl, t], [tr, t], [r, h]])
-        self.dst = np.float32([[dl, h], [dl, 0], [dr, 0], [dr, h]])
-        self.M = cv2.getPerspectiveTransform(self.src, self.dst)
-        self.Minv = cv2.getPerspectiveTransform(self.dst, self.src)
-
-    def warp(self, image):
-        img_size = (image.shape[1], image.shape[0])
-        return cv2.warpPerspective(image, self.M, img_size, flags=cv2.INTER_LINEAR)
-
-    def unwarp(self, image):
-        img_size = (image.shape[1], image.shape[0])
-        return cv2.warpPerspective(image, self.Minv, img_size, flags=cv2.INTER_LINEAR)
-
-    def draw_src(self, image):
-        cv2.polylines(image, [np.int32(self.src)], 1, (255, 0, 0), thickness=5)
-
-    def draw_dst(self, image):
-        cv2.polylines(image, [np.int32(self.dst)], 1, (255, 0, 0), thickness=5)
