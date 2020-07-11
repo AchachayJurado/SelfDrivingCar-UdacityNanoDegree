@@ -18,10 +18,11 @@ The goals / steps of this project are the following:
 [image2]: ./output_images/edge_detection/edge_detection_test2_result.jpg "Edge Detection"
 [image3]: ./output_images/perspective_transform/bird_eye_view_test2.jpg "Perspective Transform Transformed"
 [image4]: ./output_images/lane_fitting/lane_fitting_test2.jpg "Lane Fitting"
-
-[image5]: ./examples/warped_straight_lines.jpg "Warp Example"
-[image6]: ./examples/color_fit_lines.jpg "Fit Visual"
-[image7]: ./examples/example_output.jpg "Output"
+[image5]: ./examples/color_fit_lines.jpg "Fit Visual"
+[image6]: ./output_images/pipeline/pipeline_process_test2.jpg "Curvature Pipeline"
+[image7]: ./output_images/pipeline/pipeline_test2.jpg "Output"
+[image8]: ./output_images/pipeline/pipeline_straight_lines1.jpg "Output"
+[image9]: ./output_images/pipeline/pipeline_test4.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
 
 ---
@@ -62,7 +63,7 @@ The distortion correction is more obvious in the chessboard images, for instance
   <img width="600" height="200" src="./output_images/distortion_correction/distortion_correction_calibration1.jpg">
 </p>
 
-#### 2. Create a filtered-thresholded image
+#### 2. Create a filtered-thresholded image.
 To create a binary image, a combination of color and gradient thresholds have been used. Both filtering and thresholdinng functions can be found in `perception/filtering.py` and `perception/threshold.py` respectively. The full edge detection is performed by the `DetectEdges()` class.
 
 The implementation of the HLS filter(S channel) is taken from course material Lesson 15, Chapter "HLS Quiz" a function that thresholds the S-channel of HLS and can be found in `filtering.py`. After that, as shown in Chapters "Applying Sobel" and "Direction of the Gradient", the `SobelFilter` class applied a group of Sobel filters(x, y, magnitude, and direction) to the image to produce a binary image to indicate the lines detected
@@ -78,7 +79,7 @@ The next figure shows an example where the edge detection performs well enough.
 ![edges detection][image2]
 In this image, one can already see that in the right side of the ego lane, the line detection will require some sort of lane fitting as the line is not whole (solid) but dashed.
 
-#### 3. Create a perspective transform image
+#### 3. Create a perspective transform image.
 For the perspective transform, refer to `warper.py`, the `Warper` class takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points. The source and destination points are hardcoded as a dependency to the image size which is: `width = 1280` `length = 720`
 
 ```python
@@ -105,7 +106,7 @@ To verifiy the perspective transform, find a drawing of the `src` and `dst` poin
 
 ![src vs dst points][image3]
 
-#### 4. Identifying lane-line pixels and fitting their positions with a polynomial
+#### 4. Identifying lane-line pixels and fitting their positions with a polynomial.
 Based on "Finding the Lines" and "Measure Curvature" chapters, the detection of lane-lines starts with searching for peaks in the histogram in the bottom part of the thresholded and warped images. Once, the peaks are identified they are used as the starting point for following the line using the sliding window approach. Find the related code in `lane_finder.py` and `lane_fitter.py`. After the initial line is detected, we can continue searching for the new location of the lane line starting in the area where the current line was detected.
 The process followed is:
 4. 1. Create a warped binary image (steps 1 to 3)
@@ -126,15 +127,23 @@ The process followed is:
 The result looks as follows:
 ![lane fitting using windows][image4]
 
-#### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
+By using the second order polynomial to each side of the lane:
+![alt text][image5]
 
-I did this in lines # through # in my code in `my_other_file.py`
+#### 5. Calculate the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-#### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
-
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
-
+To compute the radius of curvature of the lane, refer to  `lane_fitter.py` where two functions `get_curvature` and `get_curvature_px` perform the task to return the radius in either meters[m] or pixels [px] respectively.
 ![alt text][image6]
+
+#### 6. Highlight the "drivable" area as per the ego lane found + radius + distance to the center line assuming the camera is place in the center of the car.
+
+Left             |  Center                   |  Right        |
+:---------------:|:-------------------------:|:--------------|
+  ![left][image7]|  ![left][image8]          |![left][image9]|
+
+The radius of the curvature shall be bigger when the lane is more straight, which is seen in the examples above.
+
+Along this explanation I have taken the worst case scenario which is the one shown for the left case, where the right side of the lane line does not have a lot of sample lines perform the fitting process. For every straight lane case, it was noticeable that the fitting was performing better. To see all the outputs for the test images, please refer to `output_images` directory.
 
 ---
 
