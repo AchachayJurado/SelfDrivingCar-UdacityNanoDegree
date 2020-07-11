@@ -9,6 +9,7 @@ from .cache import Cache
 from .save import save_image
 
 CALIBRATION_PATH = glob.glob("camera_cal/calibration*.jpg")
+CHESS_BOARD_SHAPE = (9, 6)  # In this case the chessboard is 9X6 shaped
 
 
 class Camera():
@@ -26,8 +27,8 @@ class Camera():
     dist = None
 
     def __init__(self):
-        self.nx = 9
-        self.ny = 6
+        self.nx = CHESS_BOARD_SHAPE[0]
+        self.ny = CHESS_BOARD_SHAPE[1]
         self.images_to_calibrate = CALIBRATION_PATH
 
         # Cache
@@ -83,6 +84,13 @@ class Camera():
             print(
                 "cv2.findChessboardCorners was not able to process file: %s" % file_name)
 
+    def undistort(self, img):
+        w = img.shape[1]
+        h = img.shape[0]
+        [mtx, dist] = self.get_calibration(w, h)
+        undistorted = cv2.undistort(img, mtx, dist, None, mtx)
+        return undistorted
+
     def display_calibration(self):
         n_images = len(self.images)
         n_columns = 4
@@ -99,7 +107,7 @@ class Camera():
                 img, (self.nx, self.ny), self.imgpoints[idx], True
             )
 
-            # Save back to a file with calibrated_ prefix
+            # Save calibration output (prexix calibrated)
             save_image(chessboard, file_name, "calibrated_")
 
             col = int(idx % n_columns)
@@ -113,12 +121,13 @@ class Camera():
             row = math.floor(idx / n_columns)
             axs[row, col].axis("off")
 
+        plt.suptitle("Results of camera calibration", fontsize=20)
         out_file_name = os.path.join(
             "output_images", "chessboard_calibration.png")
         plt.savefig(out_file_name)
+        plt.subplots_adjust(top=0.88)
         print(
             "Found corners saved for each image in  output_images/ and a summary in output_images/chessboard_calibration.png")
-
         plt.show()
 
     def get_3d_to_2d_points(self):
@@ -139,15 +148,13 @@ class Camera():
 
         return self.mtx, self.dist
 
-    def undistort(self, img):
-        w = img.shape[1]
-        h = img.shape[0]
-        [mtx, dist] = self.get_calibration(w, h)
-        undistorted = cv2.undistort(img, mtx, dist, None, mtx)
-        return undistorted
-
 
 def GetCalibratedCamera():
     camera = Camera()  # Creates a camera model by computing objpoints,imgpoints pair based on chessboard images for calibration
     camera.calibrate()
     return camera
+
+
+def CalibrateCamera():
+    camera = GetCalibratedCamera()
+    camera.display_calibration()
