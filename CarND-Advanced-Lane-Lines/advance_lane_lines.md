@@ -17,8 +17,8 @@ The goals / steps of this project are the following:
 [image1]: ./output_images/distortion_correction/distortion_correction_test2.jpg "Undistorted"
 [image2]: ./output_images/edge_detection/edge_detection_test2_result.jpg "Edge Detection"
 [image3]: ./output_images/perspective_transform/bird_eye_view_test2.jpg "Perspective Transform Transformed"
+[image4]: ./output_images/lane_fitting/lane_fitting_test2.jpg "Lane Fitting"
 
-[image4]: ./examples/binary_combo_example.jpg "Binary Example"
 [image5]: ./examples/warped_straight_lines.jpg "Warp Example"
 [image6]: ./examples/color_fit_lines.jpg "Fit Visual"
 [image7]: ./examples/example_output.jpg "Output"
@@ -68,11 +68,11 @@ To create a binary image, a combination of color and gradient thresholds have be
 The implementation of the HLS filter(S channel) is taken from course material Lesson 15, Chapter "HLS Quiz" a function that thresholds the S-channel of HLS and can be found in `filtering.py`. After that, as shown in Chapters "Applying Sobel" and "Direction of the Gradient", the `SobelFilter` class applied a group of Sobel filters(x, y, magnitude, and direction) to the image to produce a binary image to indicate the lines detected
 
 The S channel detects the lane lines on bright images, however, strong shadows are also added to the binary. This channel is usually not able to detect small lane lines on the back of the image or dashed lane lines with long distance between the dashes. The threshold was tuned to remove the car and to be effective different brightness images, following the steps:
-1. Apply x or y gradient to a gray image with OpenCV Sobel() function and then take the absolute value.
-2. Rescale the image (after sobel filtering) back to 8 bit integer
-3. Create a copy and apply the threshold
+2. 1. Apply x or y gradient to a gray image with OpenCV Sobel() function and then take the absolute value.
+2. 2. Rescale the image (after sobel filtering) back to 8 bit integer
+2. 3. Create a copy and apply the threshold
    Inclusive(>=, <=) thresholds have shown the best results
-4. Take the absolute value of the gradient direction, apply a threshold, and create a binary image result
+2. 4. Take the absolute value of the gradient direction, apply a threshold, and create a binary image result
 
 The next figure shows an example where the edge detection performs well enough.
 ![edges detection][image2]
@@ -105,11 +105,26 @@ To verifiy the perspective transform, find a drawing of the `src` and `dst` poin
 
 ![src vs dst points][image3]
 
-#### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
+#### 4. Identifying lane-line pixels and fitting their positions with a polynomial
+Based on "Finding the Lines" and "Measure Curvature" chapters, the detection of lane-lines starts with searching for peaks in the histogram in the bottom part of the thresholded and warped images. Once, the peaks are identified they are used as the starting point for following the line using the sliding window approach. Find the related code in `lane_finder.py` and `lane_fitter.py`. After the initial line is detected, we can continue searching for the new location of the lane line starting in the area where the current line was detected.
+The process followed is:
+4. 1. Create a warped binary image (steps 1 to 3)
+4. 2. Obtain a histogram of the bottom half of the image
+4. 3. Find the peak of the left and right halves of the histogram
+      These will be the starting point for the left and right lines
+4. 4. Choose the number of sliding windows
+4. 5. Set height of windows
+4. 6. Identify the x and y positions of all nonzero pixels in the image
+4. 7. Set the width of the windows +/- margin
+4. 8. Set minimum number of pixels found to recenter window
+4. 9. Create empty lists to receive left and right lane pixel indices
+4. 10. Step through the windows one by one
+4. 11. Concatenate the arrays of indices
+4. 12. Extract left and right line pixel positions
+4. 13. Fit a second order polynomial to each side of the lane
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
-
-![alt text][image5]
+The result looks as follows:
+![lane fitting using windows][image4]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
