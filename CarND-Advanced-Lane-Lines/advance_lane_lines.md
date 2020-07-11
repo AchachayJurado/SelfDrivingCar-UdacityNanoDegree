@@ -148,15 +148,30 @@ Along this explanation I have taken the worst case scenario which is the one sho
 ---
 
 ### Pipeline (video)
-
-#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
-
-Here's a [link to my video result](./project_video.mp4)
+The single image pipeline was reused in order to process the videos:
+- [ProjectVideo](./output_test_videos/project_video.mp4)
+- [ChallengeVideo](./output_test_videos/challenge_video.mp4)
+- [HarderChallengeVideo](./output_test_videos/harder_challenge_video.mp4)
 
 ---
 
 ### Discussion
+Taking into account the reflection on [improvements and future work ](https://github.com/AchachayJurado/NanoDegree/tree/master/CarND-LaneLines-P1#improvements-and-future-work) on the previous project. I mentioned that the curvature calculation requires to be further implemented in order to find lane lines that are not straight. That was the biggest challenge of this project, considering also that the shadows and type of lines in the lanes affect the accuracy of the lane fitting.
+Such shortcomings can be improved by:
+- Caching previous polynoms fitted in previous steps onto the lane lines in order to smoothen lane line detection
+- Remove values that do not makes sense by adding sanity checks (chaching would help here too)
+- The distance to the center line calculated is a possible KPI but the values are far from stable and also they do not count with a comparable ground-truth to trust the real accuracy of the predictions. One could argue that the calculation should be done less frequently but the fact is that it is not a real solution, the KPI calculation requires quite an extensive work in order to mean something.
 
-#### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
+Code Development improvements adn future work:
+- TDD from the beginning to improve code reusability from small to big, Unfortunately I ended with a lot of code duplication given that I did not follow this approach and that I advanced the project slowly.
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.
+# **How to run the project**
+Just run the `pipeline.py` script by commenting out the desired classes to run.
+When running the pipeline with `RunPipelineForVideo()` The following output will be gotten:
+<img src="./RunScript.png" width="800"/>
+
+
+
+
+
+

@@ -25,9 +25,9 @@ def pipeline():
     #    - Determining the curvature of the lane and vehicle position with respect to center.
     # LaneFinder()
 
-    RunPipelineForImage()
+    # RunPipelineForImage()
 
-    # RunPipelineForVideo(subclip_seconds=0.5)
+    RunPipelineForVideo(subclip_seconds=0.5)
 
 
 if __name__ == "__main__":
