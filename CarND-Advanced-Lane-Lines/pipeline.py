@@ -1,17 +1,19 @@
 # from perception.lane_tracker import LaneLinesTracker
 from utils import *
 
+from perception.undistorter import *
+from perception.camera_calibration import *
+
 
 def pipeline():
     # --------
     # 1. For a given set of chessboard images, apply the camera calibration matrix and distortion coefficients.
     # --------
     CalibrateCamera()
-
     # --------
     # 2. Compute distortion correction to raw images.
     # --------
-    # RemoveDistortion()
+    RemoveDistortion()
 
     # --------
     # 3. Set a treshold for a binary image to use color transforms, gradients, etc.
