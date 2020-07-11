@@ -16,8 +16,8 @@ def LaneFinder():
 
     f, axs = plt.subplots(len(images), 1, figsize=(20, 50))
     f.tight_layout()
-    for idx, fname in enumerate(sorted(images)):
-        image = read_image(fname)
+    for idx, filename in enumerate(sorted(images)):
+        image = read_image(filename)
         undistorted = undistort_image(image, camera)
         edges, _ = edge_finder(undistorted)
         warped = warp_image(warper, edges)
@@ -29,25 +29,6 @@ def LaneFinder():
         left_cr, right_cr = lane_fitting.get_curvature()
         pos = lane_fitting.get_vehicle_position()
 
-        # Drawing
-        pos_str = "Left" if pos < 0 else "Right"
-        # print(left_cr)
-        # print(right_cr)
-        # crl_text = "Radius of curvature (left) = %d m" % left_cr
-        # crr_text = "Radius of curvature (right) = %d m" % right_cr
-        # cr_text = "Radius of curvature (avg) = %d m" % ((left_cr + right_cr) / 2)
-        # pos_text = "Vehicle is %.1f m %s from the lane center" % (np.abs(pos), pos_str)
-
-        def put_text(image, text, color=(0, 255, 255), ypos=100):
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            cv2.putText(image, text, (350, ypos),
-                        font, 1, color, 2, cv2.LINE_AA)
-
-        # put_text(vis_lanes, crl_text, ypos=50)
-        # put_text(vis_lanes, crr_text, ypos=100)
-        # put_text(vis_lanes, cr_text, ypos=150)
-        # put_text(vis_lanes, pos_text, ypos=200)
-
         # Concatenate
         vis_edges = np.dstack((edges, edges, edges))
         vis_edges = vis_edges * np.max(undistorted)
@@ -58,6 +39,6 @@ def LaneFinder():
         axs[idx].axis("off")
 
         # Save
-        save_image(vis, fname, "lane_fitting_")
+        save_image(vis, filename, "lane_fitting_")
 
     plt.show()

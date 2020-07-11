@@ -167,7 +167,7 @@ class LaneFitter(object):
         self.draw_polyfit(image, self.right_fit)
 
     def get_curvature_px(self):
-        """Calculates the curvature of polynomial functions in pixels."""
+        """Calculates the curvature of polynomial functions [pixels]."""
 
         # Implement the calculation of R_curve (radius of curvature)
         def compute(y, A, B):
@@ -177,13 +177,10 @@ class LaneFitter(object):
         left_curverad = compute(y, self.left_fit[0], self.left_fit[1])
         right_curverad = compute(y, self.right_fit[0], self.right_fit[1])
 
-        print(left_curverad)
-        print(right_curverad)
-
         return left_curverad, right_curverad
 
     def get_curvature(self):
-        """Returns the curvature of polynomial functions in meters."""
+        """Returns the curvature of polynomial functions [m]"""
 
         # Implement the calculation of R_curve (radius of curvature)
         def compute(y, A, B):
@@ -200,10 +197,6 @@ class LaneFitter(object):
     def get_vehicle_position(self):
         """
         Returns vehicle distance to the lane center in meters.
-        Assumes camera is exactly at the middle of the vehicle.
-
-        Positive value: vehicle is to the right.
-        Negative value: vehicle is to the left.
         """
         left = np.polyval(self.left_fit, self.target_px)
         right = np.polyval(self.right_fit, self.target_px)

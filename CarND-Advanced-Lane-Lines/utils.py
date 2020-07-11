@@ -10,15 +10,16 @@ from perception.tresholder import *
 from perception.pespective_transformer import *
 from perception.lane_finder import *
 
+TEST_IMAGES = glob.glob("test_images/*.jpg")
+
 
 def RunPipelineForImage():
     camera = GetCalibratedCamera()
     warper = Warper()
-    images = glob.glob("test_images/*.jpg")
 
-    f, axs = plt.subplots(len(images), 1, figsize=(20, 50))
+    f, axs = plt.subplots(len(TEST_IMAGES), 1, figsize=(20, 50))
     f.tight_layout()
-    for idx, filename in enumerate(sorted(images)):
+    for idx, filename in enumerate(sorted(TEST_IMAGES)):
         image = read_image(filename)
         undistorted = undistort_image(image, camera)
         edges, _ = edge_finder(undistorted)
@@ -31,10 +32,9 @@ def RunPipelineForImage():
         left_cr, right_cr = lane_fitting.get_curvature()
         offset_kpi = abs(lane_fitting.get_vehicle_position())
 
-        # Overlay
+        # Car Offset to the center line
         pts_y, left_fitx, right_fitx = lane_fitting.get_fitpoints()
 
-        # Create an image to draw the lines on
         warp_zero = np.zeros_like(warped).astype(np.uint8)
         color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
 
@@ -53,8 +53,6 @@ def RunPipelineForImage():
         # Combine the result with the original image
         vis_process = cv2.addWeighted(undistorted, 1, overlay, 0.3, 0)
 
-        print(left_cr)
-        print(right_cr)
         curvature = 0.5*(left_cr/1000 + right_cr/1000)
 
         cr_text = "Radius of Curvature:  " + '{:6.2f}km'.format(

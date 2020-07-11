@@ -81,11 +81,11 @@ class EdgeDetector(object):
 
         return vis
 
-    def display_result(self, fname, ax):
+    def display_result(self, filename, ax):
         vis = self.display_filtering()
 
         # save
-        save_image(vis, fname, "edge_detection_", "_result")
+        save_image(vis, filename, "edge_detection_", "_result")
 
         # show
         ax.imshow(vis)
@@ -99,8 +99,8 @@ class EdgeDetector(object):
         """image + sx/thresh + sy/thresh + smag/thresh + sdir/thresh + XY + MD + ALL"""
         pass
 
-    def display_pipeline(self, fname, ax):
-        self.display_result(fname, ax)
+    def display_pipeline(self, filename, ax):
+        self.display_result(filename, ax)
         self.display_sobel()
         self.display_hls()
 

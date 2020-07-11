@@ -5,16 +5,16 @@ from .save import chmod_rw_all
 
 
 class Cache:
-    def __init__(self, fname):
-        self.fname = "pickle/" + fname
+    def __init__(self, filename):
+        self.filename = "pickle/" + filename
 
     def exists(self):
-        return os.path.isfile(self.fname)
+        return os.path.isfile(self.filename)
 
     def save(self, data):
-        pickle.dump(data, open(self.fname, "w+b"))
-        chmod_rw_all(self.fname)
+        pickle.dump(data, open(self.filename, "w+b"))
+        chmod_rw_all(self.filename)
 
     def load(self):
-        data = pickle.load(open(self.fname, "r+b"))
+        data = pickle.load(open(self.filename, "r+b"))
         return data
