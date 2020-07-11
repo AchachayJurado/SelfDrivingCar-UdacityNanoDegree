@@ -13,9 +13,9 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image0]: ./output_images/calibrated_calibration3.jpg "Single Image Calibration"
-[image1]: ./output_images/distortion_correction_test2.jpg "Undistorted"
-[image2]: ./output_images/edge_detection_test2_result.jpg "Edge Detection"
+[image0]: ./output_images/calibration/calibrated_calibration3.jpg "Single Image Calibration"
+[image1]: ./output_images/distortion_correction/distortion_correction_test2.jpg "Undistorted"
+[image2]: ./output_images/edge_detection/edge_detection_test2_result.jpg "Edge Detection"
 [image3]: ./test_images/test1.jpg "Road Transformed"
 [image4]: ./examples/binary_combo_example.jpg "Binary Example"
 [image5]: ./examples/warped_straight_lines.jpg "Warp Example"
@@ -41,7 +41,7 @@ The camera calibration function is contained in the `camera_calibration.py` in t
 
 The distortion correction is applied to the test images using the `Camera.undistrot` method running `cv2.undistort()` function to obtain the results:
   <p align="center">
-  <img width="460" height="300" src="./output_images/chessboard_calibration.png">
+  <img width="460" height="300" src="./output_images/calibration/chessboard_calibration.png">
 </p>
 
 Here an example of a single image calibration
@@ -51,33 +51,33 @@ Here an example of a single image calibration
 An example of the distortion correction can be found on the next section.
 ### Pipeline (single images)
 The pipeline steps are depicted in `pipeline.py`.
+
 #### 1. Create a distortion-corrected image
 The `cv2.undistort()` function is used in order to create the distortion correction. Prior to perform unidstortion I perfomr a camera calibration which can also be seen in `undistorted.py`
 I chose this road image example, because the distortion correction is more visible due to the traffic sign on the left side. Notice the left image, it seems that the camera is leaning to the left side, and on the right image, it is centered.
 ![single image camera calibration][image1]
 The distortion correction is more obvious in the chessboard images, for instance:
   <p align="center">
-  <img width="600" height="200" src="./output_images/distortion_correction_calibration1.jpg">
+  <img width="600" height="200" src="./output_images/distortion_correction/distortion_correction_calibration1.jpg">
 </p>
-
 
 #### 2. Create a filtered-thresholded image
 To create a binary image, a combination of color and gradient thresholds have been used. Both filtering and thresholdinng functions can be found in `perception/filtering.py` and `perception/threshold.py` respectively. The full edge detection is performed by the `DetectEdges()` class.
 
-The implementation of the HLS filter(S channel) is taken from course material Lesson 15, Chapter "HLS Quiz" a function that thresholds the S-channel of HLS and can be found in `filtering.py`. After that, as shown in Chapter "Applying Sobel", the `SobelFilter` class applied a group of Sobel filters(x, y, magnitude, and direction) to the image to produce a binary image to indicate the lines detected
+The implementation of the HLS filter(S channel) is taken from course material Lesson 15, Chapter "HLS Quiz" a function that thresholds the S-channel of HLS and can be found in `filtering.py`. After that, as shown in Chapters "Applying Sobel" and "Direction of the Gradient", the `SobelFilter` class applied a group of Sobel filters(x, y, magnitude, and direction) to the image to produce a binary image to indicate the lines detected
 
 The S channel detects the lane lines on bright images, however, strong shadows are also added to the binary. This channel is usually not able to detect small lane lines on the back of the image or dashed lane lines with long distance between the dashes. The threshold was tuned to remove the car and to be effective different brightness images, following the steps:
 1. Apply x or y gradient to a gray image with OpenCV Sobel() function and then take the absolute value.
 2. Rescale the image (after sobel filtering) back to 8 bit integer
 3. Create a copy and apply the threshold
    Inclusive(>=, <=) thresholds have shown the best results
+4. Take the absolute value of the gradient direction, apply a threshold, and create a binary image result
 
 The next figure shows an example where the edge detection performs well enough.
 ![edges detection][image2]
 In this image, one can already see that in the right side of the ego lane, the line detection will require some sort of lane fitting as the line is not whole (solid) but dashed.
 
-#### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
-
+#### 3. Create a perspective transform image
 The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
 
 ```python
