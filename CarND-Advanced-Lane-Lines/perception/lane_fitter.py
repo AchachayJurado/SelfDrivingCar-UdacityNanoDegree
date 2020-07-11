@@ -92,13 +92,13 @@ class LaneFitter(object):
             )
 
             # Identify the nonzero pixels in x and y within the window ###
-            good_left_inds = (
+            non_zero_left_inds = (
                 (nonzeroy >= win_y_low)
                 & (nonzeroy < win_y_high)
                 & (nonzerox >= win_xleft_low)
                 & (nonzerox < win_xleft_high)
             ).nonzero()[0]
-            good_right_inds = (
+            non_zero_right_inds = (
                 (nonzeroy >= win_y_low)
                 & (nonzeroy < win_y_high)
                 & (nonzerox >= win_xright_low)
@@ -106,14 +106,15 @@ class LaneFitter(object):
             ).nonzero()[0]
 
             # Append these indices to the lists
-            left_lane_inds.append(good_left_inds)
-            right_lane_inds.append(good_right_inds)
+            left_lane_inds.append(non_zero_left_inds)
+            right_lane_inds.append(non_zero_right_inds)
 
             # If you found > minpix pixels, recenter next window on their mean position
-            if len(good_left_inds) > minpix:
-                leftx_current = np.int(np.mean(nonzerox[good_left_inds]))
-                if len(good_right_inds) > minpix:
-                    rightx_current = np.int(np.mean(nonzerox[good_right_inds]))
+            if len(non_zero_left_inds) > minpix:
+                leftx_current = np.int(np.mean(nonzerox[non_zero_left_inds]))
+                if len(non_zero_right_inds) > minpix:
+                    rightx_current = np.int(
+                        np.mean(nonzerox[non_zero_right_inds]))
 
         # Concatenate the arrays of indices (previously was a list of lists of pixels)
         left_lane_inds = np.concatenate(left_lane_inds)
@@ -176,6 +177,9 @@ class LaneFitter(object):
         left_curverad = compute(y, self.left_fit[0], self.left_fit[1])
         right_curverad = compute(y, self.right_fit[0], self.right_fit[1])
 
+        print(left_curverad)
+        print(right_curverad)
+
         return left_curverad, right_curverad
 
     def get_curvature(self):
@@ -206,9 +210,6 @@ class LaneFitter(object):
         img_center = self.image_width / 2
         lane_center = (left + right) / 2
 
-        # delta > 0:
-        # - lane_center is to the right
-        # - vehicle is to the left
         delta = lane_center - img_center
 
         return -1 * delta * self.xm_per_pix
