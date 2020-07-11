@@ -5,6 +5,7 @@ from perception.undistorter import *
 from perception.camera_calibration import *
 from perception.tresholder import *
 from perception.pespective_transformer import *
+from perception.lane_finder import *
 
 
 def pipeline():
@@ -25,14 +26,14 @@ def pipeline():
     # --------
     # 4. Apply a perspective transform to rectify binary image.
     # --------
-    PerspectiveTransform()
+    # PerspectiveTransform()
 
     # --------
     # 5. Fit the lane by:
     #    - Finding the lane boundary by detecting lane pixels.
     #    - Determining the curvature of the lane and vehicle position with respect to center.
     # --------
-    # FitLaneBoundaries()
+    LaneFinder()
 
     # --------
     # 6. Warp the detected lane boundaries back onto the original image.
