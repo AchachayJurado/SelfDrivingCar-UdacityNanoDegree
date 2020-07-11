@@ -16,7 +16,8 @@ The goals / steps of this project are the following:
 [image0]: ./output_images/calibration/calibrated_calibration3.jpg "Single Image Calibration"
 [image1]: ./output_images/distortion_correction/distortion_correction_test2.jpg "Undistorted"
 [image2]: ./output_images/edge_detection/edge_detection_test2_result.jpg "Edge Detection"
-[image3]: ./test_images/test1.jpg "Road Transformed"
+[image3]: ./output_images/perspective_transform/bird_eye_view_test2.jpg "Perspective Transform Transformed"
+
 [image4]: ./examples/binary_combo_example.jpg "Binary Example"
 [image5]: ./examples/warped_straight_lines.jpg "Warp Example"
 [image6]: ./examples/color_fit_lines.jpg "Fit Visual"
@@ -78,7 +79,7 @@ The next figure shows an example where the edge detection performs well enough.
 In this image, one can already see that in the right side of the ego lane, the line detection will require some sort of lane fitting as the line is not whole (solid) but dashed.
 
 #### 3. Create a perspective transform image
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+For the perspective transform, refer to `warper.py`, the `Warper` class takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points. The source and destination points are hardcoded as a dependency to the image size which is: `width = 1280` `length = 720`
 
 ```python
 src = np.float32(
@@ -93,18 +94,16 @@ dst = np.float32(
     [(img_size[0] * 3 / 4), 0]])
 ```
 
-This resulted in the following source and destination points:
-
 | Source        | Destination   |
 |:-------------:|:-------------:|
-| 585, 460      | 320, 0        |
+| 578, 460      | 320, 0        |
 | 203, 720      | 320, 720      |
 | 1127, 720     | 960, 720      |
-| 695, 460      | 960, 0        |
+| 702, 460      | 960, 0        |
 
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+To verifiy the perspective transform, find a drawing of the `src` and `dst` points onto a test image and its warped counterpart. The lines appear parallel in the warped image.
 
-![alt text][image4]
+![src vs dst points][image3]
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
