@@ -1,6 +1,5 @@
 ## Advanced Lane Lines
 
----
 The goals / steps of this project are the following:
 
 * Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
@@ -15,7 +14,7 @@ The goals / steps of this project are the following:
 [//]: # (Image References)
 
 [image0]: ./output_images/calibrated_calibration3.jpg "Single Image Calibration"
-[image1]: ./examples/undistort_output.png "Undistorted"
+[image1]: ./output_images/distortion_correction_test2.jpg "Undistorted"
 [image2]: ./examples/undistort_output.png "Undistorted"
 [image3]: ./test_images/test1.jpg "Road Transformed"
 [image4]: ./examples/binary_combo_example.jpg "Binary Example"
@@ -50,13 +49,16 @@ Here an example of a single image calibration
 
 
 An example of the distortion correction can be found on the next section.
-
 ### Pipeline (single images)
 
 #### 1. Provide an example of a distortion-corrected image.
-
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
-![alt text][image2]
+The `cv2.undistort()` function is used in order to create the distortion correction.
+I chose this road image example, because the distortion correction is more visible due to the traffic sign on the left side. Notice the left image, it seems that the camera is leaning to the left side, and on the right image, it is centered.
+![single image camera calibration][image1]
+The distortion correction is more obvious in the chessboard images, for instance:
+  <p align="center">
+  <img width="600" height="200" src="./output_images/distortion_correction_calibration1.jpg">
+</p>
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
