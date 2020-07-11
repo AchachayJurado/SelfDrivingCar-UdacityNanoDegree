@@ -3,7 +3,8 @@ from utils import *
 
 from perception.undistorter import *
 from perception.camera_calibration import *
-from perception.treshold import *
+from perception.tresholder import *
+from perception.pespective_transformer import *
 
 
 def pipeline():
@@ -19,12 +20,12 @@ def pipeline():
     # --------
     # 3. Set a treshold for a binary image to use color transforms, gradients, etc.
     # --------
-    DetectEdges()
+    # DetectEdges()
 
     # --------
     # 4. Apply a perspective transform to rectify binary image.
     # --------
-    # PerspectiveTransform()
+    PerspectiveTransform()
 
     # --------
     # 5. Fit the lane by:
