@@ -7,7 +7,6 @@ import glob
 
 from .save import save_image
 from perception.camera_calibration import GetCalibratedCamera
-from perception.plot_images import *
 
 
 TEST_IMAGES = glob.glob("test_images/*.jpg")
