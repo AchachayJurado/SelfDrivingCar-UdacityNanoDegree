@@ -31,10 +31,9 @@ VALIDATION_SAMPLES = 0.2 # 20% of the DATASET is used for validation and 80% for
 
 def run_model():
 
-    # Get the data used to train the network
-    # [TRAINING DATA SET 1] 8 loop driving in both directions in track 1
-    # [TRAINING DATA SET 2] 2 laps driving in one direction in track 2
-    # All data is merged into a common csv file containing the relevant tokens
+    # Data set to train the network
+    # [TRAINING DATA SET 1] 2 laps driving in one direction in track 1
+    # [TRAINING DATA SET 2] 1 laps driving in one direction in track 2
 
     samples = []
     with open(DATASET_CSV) as csvfile:

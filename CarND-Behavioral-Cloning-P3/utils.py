@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 AUGMENT_BY_FLIPPING = True
 SIDE_CAMERAS_ON = True
 CORRECTION = 0.2
-BATCH_SIZE = 2
+BATCH_SIZE = 32
 
 # IMG_DIR = 'record_simulator/track1/IMG/'
 IMG_DIR = 'record_simulator/track2/IMG/'
