@@ -9,57 +9,50 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-/**
- * Constructor.
- */
 FusionEKF::FusionEKF()
 {
   is_initialized_ = false;
 
   previous_timestamp_ = 0;
 
-  // initializing matrices
-  R_laser_ = MatrixXd(2, 2);
-  R_radar_ = MatrixXd(3, 3);
+  // == Lidar/Laser ==
+  // Measurement Function Matrix
   H_laser_ = MatrixXd(2, 4);
-  Hj_ = MatrixXd(3, 4);
-
-  //measurement covariance matrix - laser
+  H_laser_ << 1, 0, 0, 0,
+      0, 1, 0, 0;
+  // Measurement Covariance Matrix
+  R_laser_ = MatrixXd(2, 2);
   R_laser_ << 0.0225, 0,
       0, 0.0225;
 
-  //measurement covariance matrix - radar
+  // == Radar ==
+  // Radar Measurement Jacobian Function
+  Hj_ = MatrixXd(3, 4);
+  // Measurement Covariance Matrix
+  R_radar_ = MatrixXd(3, 3);
   R_radar_ << 0.09, 0, 0,
       0, 0.0009, 0,
       0, 0, 0.09;
 
-  //measurement covariance matrix
-  H_laser_ << 1, 0, 0, 0,
-      0, 1, 0, 0;
-
-  noise_ax_ = 9.0;
-  noise_ay_ = 9.0;
-
-  //  Create a 4D state vector, the values of the x state are not known yet
-  VectorXd x = VectorXd(4);
-  x << 0.0, 0.0, 1.0, 1.0;
-
-  // The initial matrix F_
+  // == State ==
+  // State Transition Matrix
   MatrixXd F = MatrixXd(4, 4);
   F << 1, 0, 0.5, 0,
       0, 1, 0, 0.5,
       0, 0, 1, 0,
       0, 0, 0, 1;
-
-  MatrixXd Q = MatrixXd::Zero(4, 4);
+  // State Covariance Matrix
   MatrixXd P = MatrixXd::Zero(4, 4);
+  // State Transition Noise
+  MatrixXd Q = MatrixXd::Zero(4, 4);
+
+  //  Create a 4D state vector, the values of the x state are not known yet
+  VectorXd x = VectorXd(4);
+  x << 0.0, 0.0, 1.0, 1.0;
 
   ekf_.Init(x, P, F, H_laser_, R_laser_, Q);
 }
 
-/**
- * Destructor.
- */
 FusionEKF::~FusionEKF() {}
 
 void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack)
@@ -100,7 +93,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack)
       float px = measurement_pack.raw_measurements_[0];
       float py = measurement_pack.raw_measurements_[1];
 
-      // The speed is certain
+      // The speed is uncertain
       ekf_.P_ << 1, 0, 0, 0,
           0, 1, 0, 0,
           0, 0, 1000, 0,
@@ -108,6 +101,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack)
 
       ekf_.x_ << px, py, 0, 0;
     }
+
+    previous_timestamp_ = measurement_pack.timestamp_;
 
     // Done initializing, no need to predict or update
     is_initialized_ = true;
@@ -126,9 +121,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack)
   ekf_.F_(0, 2) = dt;
   ekf_.F_(1, 3) = dt;
 
-  // set the process covariance matrix Q
+  // Set the process covariance matrix Q
   ekf_.Q_ = tools.CalculateCovariantMatrix(dt, noise_ax_, noise_ay_);
-
   ekf_.Predict();
 
   /**
@@ -149,6 +143,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack)
   }
 
   // print the output
-  std::cout << "x_ = " << ekf_.x_ << std::endl;
-  // std::cout << "P_ = " << ekf_.P_ << std::endl;
+  cout << "x_ = " << ekf_.x_ << endl;
+  cout << "P_ = " << ekf_.P_ << endl;
 }

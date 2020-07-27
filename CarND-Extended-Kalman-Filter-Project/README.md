@@ -39,38 +39,35 @@ The communication protocol that main.cpp uses for uWebSocketIO in communicating 
 __COMMAND LINE OUTPUT:__
 I have added some couts in order to see the estimated x and the RMSE corresponding to it, also ti visualy obbserve the update after a new measurement from Lidar or Radar has come in.
 ```
-x_ =  -8.16108
-      10.8292
-      4.76408
-      -0.189205
-RMSE = 0.097631
-       0.088092
-       0.538735
-       0.467586
-Update (Laser) -7.51971
-               11.0005
-x_ =  -7.77955
-      10.9042
-      5.15254
-      0.0386998
-RMSE =  0.097537
-        0.0880036
-        0.538198
-        0.467118
-UpdateEKF (Radar)  12.8856
-                   2.1693
-                   -2.77937
-x_ =  -7.51129
-      10.9031
-      5.14932
-      0.0779047
-RMSE = 0.0974405
-       0.0879155
-       0.537663
-       0.466661
-Update (Laser) -7.15631
-               10.815
-x_ =  -7.23246
+x_ =  11.1315
+      14.1753
+     -4.86447
+      0.406382
+P_ =  0.00687678  -0.0025531   0.0173722 -0.00788902
+     -0.0025531  0.00562724 -0.00880071   0.0129621
+      0.0173722 -0.00880071    0.115152  -0.0401013
+     -0.00788902   0.0129621  -0.0401013    0.095715
+RMSE = 0.0740899
+       0.0964326
+       0.446976
+       0.476035
+UpdateEKF (Radar)  18.0394
+                   0.897837
+                  -3.23191
+x_ =  10.8881
+      14.1617
+     -4.98471
+       0.14773
+P_ =  0.00845673 -0.00358964   0.0216488  -0.0113006
+      -0.00358964  0.00639669   -0.012797   0.0137597
+        0.0216488   -0.012797    0.123281  -0.0578884
+       -0.0113006   0.0137597  -0.0578884   0.0862289
+RMSE = 0.0740244
+       0.0963655
+       0.446603
+       0.475599
+Update (Laser)  10.468
+                14.0591
 ```
 
 ### Results
@@ -81,6 +78,11 @@ _Data Set 2_
 <img src="./report_images/ekf_dataset2.png" width="800"/>
 
 For both cases the values of RMSE are lower than the specified tolerance.
+RMSE(x)  < 0.11
+RMSE(y)  < 0.11
+RMSE(Vx) < 0.52
+RMSE(Vy) < 0.52
+
 See [project rubrics](https://review.udacity.com/#!/rubrics/1962/view)
 
 

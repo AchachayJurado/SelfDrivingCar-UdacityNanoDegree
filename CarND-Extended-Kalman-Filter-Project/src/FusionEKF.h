@@ -1,25 +1,19 @@
 #ifndef FusionEKF_H_
 #define FusionEKF_H_
 
-#include "Eigen/Dense"
-#include "kalman_filter.h"
-#include "measurement_package.h"
-#include "tools.h"
 #include <fstream>
 #include <string>
 #include <vector>
 
+#include "Eigen/Dense"
+#include "kalman_filter.h"
+#include "measurement_package.h"
+#include "tools.h"
+
 class FusionEKF
 {
 public:
-  /**
-   * Constructor.
-   */
   FusionEKF();
-
-  /**
-   * Destructor.
-   */
   virtual ~FusionEKF();
 
   /**
@@ -33,6 +27,7 @@ public:
   KalmanFilter ekf_;
 
 private:
+  void Initialize(const MeasurementPackage &measurement_pack);
   // check whether the tracking toolbox was initialized or not (first measurement)
   bool is_initialized_;
 
@@ -47,8 +42,8 @@ private:
   Eigen::MatrixXd Hj_;
 
   // acceleration noise components
-  double noise_ax_;
-  double noise_ay_;
+  double noise_ax_{9.0};
+  double noise_ay_{9.0};
 };
 
 #endif // FusionEKF_H_
