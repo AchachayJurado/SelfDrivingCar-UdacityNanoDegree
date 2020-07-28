@@ -8,3 +8,4 @@ Content
 3. CarND-Traffic-Sign-Classifier-Project
 4. CarND-Behavioral-Clonning-P3
 5. CarND-Extended-Kalman-Filter-Project
+6. CarND-Kidnapped-Vehicle-Project
