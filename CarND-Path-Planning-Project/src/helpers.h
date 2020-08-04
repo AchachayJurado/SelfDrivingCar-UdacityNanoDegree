@@ -33,4 +33,9 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s,
                      const vector<double> &maps_x,
                      const vector<double> &maps_y);
 
+// Checks if the SocketIO event has JSON data.
+// If there is data the JSON object in string format will be returned,
+//   else the empty string "" will be returned.
+std::string hasData(std::string s);
+
 #endif // HELPERS_H
