@@ -10,3 +10,4 @@ Content
 5. [CarND-Extended-Kalman-Filter-Project](CarND-Extended-Kalman-Filter-Project)
 6. [CarND-Kidnapped-Vehicle-Project](CarND-Kidnapped-Vehicle-Project)
 7. [CarND-Path-Planning-Project](CarND-Path-Planning-Project)
+8. [CarND-PID-Control-Project](CarND-PID-Control-Project)
