@@ -9,3 +9,4 @@ Content
 4. [CarND-Behavioral-Clonning-P3](CarND-Behavioral-Cloning-P3)
 5. [CarND-Extended-Kalman-Filter-Project](CarND-Extended-Kalman-Filter-Project)
 6. [CarND-Kidnapped-Vehicle-Project](CarND-Kidnapped-Vehicle-Project)
+7. [CarND-Path-Planning-Project] (CarND-Path-Planning-Project)
