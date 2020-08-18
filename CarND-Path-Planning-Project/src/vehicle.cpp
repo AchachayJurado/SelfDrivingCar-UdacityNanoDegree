@@ -16,8 +16,8 @@ Vehicle::Vehicle(json &j, bool isEgo)
   y = j[1]["y"];
   s = j[1]["s"];
   d = j[1]["d"];
-  yaw = j[1]["yaw"];
-  yaw_rad = deg2rad(yaw);
+  yaw_deg = j[1]["yaw"];
+  yaw_rad = deg2rad(yaw_deg);
 
   speed = milesPerHourToMetersPerSecond(j[1]["speed"]);
  }
@@ -33,12 +33,12 @@ Vehicle::Vehicle(json &j, bool isEgo)
 
   lane = (int)(d / LANE_WIDTH);
 
-  // TODO: Calculate yaw for non-ego cars (not necessarily required).
+  // Calculate yaw for non-ego cars (not necessarily required).
 
-  yaw = 0.0;
+  yaw_deg = 0.0;
   yaw_rad = 0.0;
 
-  // TODO: deal with cases where vehicles does not follow s, but follows d
+  // Deal with cases where vehicles does not follow s, but follows d
   //
   speed = sqrt(vx * vx + vy * vy);
  }

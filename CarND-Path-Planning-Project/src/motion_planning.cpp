@@ -1,14 +1,15 @@
 
-#include "path_planner.h"
+#include "motion_planning.h"
 #include "algorithm"
 #include "config.h"
 #include "helpers.h"
 
-PathPlanner::PathPlanner(vector<double> map_waypoints_x,
-                         vector<double> map_waypoints_y,
-                         vector<double> map_waypoints_s,
-                         vector<double> map_waypoints_dx,
-                         vector<double> map_waypoints_dy)
+// Map waypoints
+MotionPlanner::MotionPlanner(vector<double> map_waypoints_x,
+                             vector<double> map_waypoints_y,
+                             vector<double> map_waypoints_s,
+                             vector<double> map_waypoints_dx,
+                             vector<double> map_waypoints_dy)
 {
     map_waypoints_x_ = map_waypoints_x;
     map_waypoints_y_ = map_waypoints_y;
@@ -17,12 +18,13 @@ PathPlanner::PathPlanner(vector<double> map_waypoints_x,
     map_waypoints_dy_ = map_waypoints_dy;
 }
 
-void PathPlanner::updateSensorFusion(json data)
+// Update Fused Road Model (Lanes and Model of the road)
+void MotionPlanner::UpdateFusedRoadModel(json data)
 {
-    // initialize ego vehicle
+    // 1. Initialization of ego vehicle
     ego = Vehicle(data, true);
 
-    // Sensor Fusion Data, a list of all other cars on the same side of the road.
+    // 2. Get information of all other cars on the same side of the road (SensorFusionData)
     vehicles.clear();
     json sensor_fusion = data[1]["sensor_fusion"];
     for (json sensor_fusion_vehicle : sensor_fusion)
@@ -30,24 +32,26 @@ void PathPlanner::updateSensorFusion(json data)
         vehicles.push_back(Vehicle(sensor_fusion_vehicle, false));
     }
 
-    // Previous path data given to the Planner
+    // 3. Planner's previous path data
     previous_path_x = data[1]["previous_path_x"];
     previous_path_y = data[1]["previous_path_y"];
-    // Previous path's end s and d values
+
+    // 4. Planner's previous path's end s and d values
     end_path_s = data[1]["end_path_s"];
     end_path_d = data[1]["end_path_d"];
 }
 
-double PathPlanner::laneSpeed(int lane)
+// Calculate the speed of the lane to further take decisions
+double MotionPlanner::LaneSpeed(int lane)
 {
-    double lane_speed = milesPerHourToMetersPerSecond(MAX_SPEED_MPH);
+    double lane_speed = milesPerHourToMetersPerSecond(MAX_LONG_SPEED_MPH);
     for (Vehicle vehicle : vehicles)
     {
         if (vehicle.lane == lane)
         {
-            double distance_to_vehicle_ahead = wrappedDistance(ego.s, vehicle.s);
-            double distance_to_vehicle_behind = wrappedDistance(vehicle.s, ego.s);
-            if (((distance_to_vehicle_ahead < FRONT_SENSOR_RANGE_M) || (distance_to_vehicle_behind < 10)) && (vehicle.speed < lane_speed))
+            double distance_to_vehicle_ahead = WrappedDistance(ego.s, vehicle.s);
+            double distance_to_vehicle_behind = WrappedDistance(vehicle.s, ego.s);
+            if (((distance_to_vehicle_ahead < FRONT_SENSOR_RANGE_M) || (distance_to_vehicle_behind < MIN_DIST_TO_VEH)) && (vehicle.speed < lane_speed))
             {
                 lane_speed = vehicle.speed;
             }
@@ -56,7 +60,7 @@ double PathPlanner::laneSpeed(int lane)
     return lane_speed;
 }
 
-double PathPlanner::safetyCosts(int lane)
+double MotionPlanner::LaneCost(int lane)
 {
     // find vehicles in the lane that might cause trouble
     // cars in the safety distance before or behind us
@@ -65,8 +69,8 @@ double PathPlanner::safetyCosts(int lane)
     {
         if (vehicle.lane == lane)
         {
-            if ((wrappedDistance(vehicle.s, ego.s) < safetyDistance(vehicle.speed)) /* ego in front of vehicle */
-                || (wrappedDistance(ego.s, vehicle.s) < safetyDistance(ego.speed)) /* ego vehicle in front of ego */)
+            if ((WrappedDistance(vehicle.s, ego.s) < GetSafeDistance(vehicle.speed)) /* ego in front of vehicle */
+                || (WrappedDistance(ego.s, vehicle.s) < GetSafeDistance(ego.speed)) /* ego vehicle in front of ego */)
             {
                 safety_costs += 1.0;
             }
@@ -76,14 +80,14 @@ double PathPlanner::safetyCosts(int lane)
 }
 
 // figure out the fastes lane of the current and the direct neighbours
-int PathPlanner::fastestLane()
+int MotionPlanner::GetFastestLane()
 {
     int fastest_lane = ego.lane;
-    double fastest_speed = laneSpeed(fastest_lane);
+    double fastest_speed = LaneSpeed(fastest_lane);
 
     for (int lane = 0; lane < NUMBER_OF_LANES; lane++)
     {
-        double lane_speed = laneSpeed(lane);
+        double lane_speed = LaneSpeed(lane);
         if ((lane_speed > fastest_speed) || ((lane_speed == fastest_speed) && (fabs(lane - ego.lane) < fabs(fastest_lane - ego.lane))))
         {
             fastest_speed = lane_speed;
@@ -93,12 +97,12 @@ int PathPlanner::fastestLane()
     return fastest_lane;
 }
 
-double PathPlanner::centerLaneD(int lane)
+double MotionPlanner::DisplacementFromCenterLine(int lane)
 {
     return LANE_WIDTH * (0.5 + lane);
 }
 
-double PathPlanner::safetyDistance(double speed_mps)
+double MotionPlanner::GetSafeDistance(double speed_mps)
 {
     // see http://www.softschools.com/formulas/physics/stopping_distance_formula/89/
     double reaction_distance = speed_mps * REACTION_TIME_S;
@@ -106,7 +110,7 @@ double PathPlanner::safetyDistance(double speed_mps)
     return reaction_distance + brake_distance;
 }
 
-double PathPlanner::wrappedDistance(double back_s, double front_s)
+double MotionPlanner::WrappedDistance(double back_s, double front_s)
 {
     double distance = (front_s - back_s + TRACK_LENGTH_M) - TRACK_LENGTH_M;
 
@@ -117,7 +121,7 @@ double PathPlanner::wrappedDistance(double back_s, double front_s)
     return distance;
 }
 
-json PathPlanner::path()
+json MotionPlanner::Path()
 {
 
     // define the actual (x,y) points we will use for the planner
@@ -133,7 +137,7 @@ json PathPlanner::path()
         car_s = end_path_s;
     }
 
-    bool too_close = false;
+    bool vehicle_is_too_close = false;
 
     for (Vehicle vehicle : vehicles)
     {
@@ -144,17 +148,17 @@ json PathPlanner::path()
 
             check_car_s += ((double)prev_size * TICK_S * check_speed);
 
-            double wrapped_distance = wrappedDistance(car_s, check_car_s);
-            if (wrapped_distance < safetyDistance(ego.speed))
+            double wrapped_distance = WrappedDistance(car_s, check_car_s);
+            if (wrapped_distance < GetSafeDistance(ego.speed))
             {
-                int fastest_lane = fastestLane();
+                int fastest_lane = GetFastestLane();
                 if (lane == ego.lane)
                 {
                     // car has reached new lane
                     if (fastest_lane > lane)
                     {
                         // change lane if change is safe
-                        if (safetyCosts(lane + 1) < 0.2)
+                        if (LaneCost(lane + 1) < 0.2)
                         {
                             lane += 1;
                         }
@@ -166,7 +170,7 @@ json PathPlanner::path()
                     else if (fastest_lane < lane)
                     {
                         // change lane if change is safe
-                        if (safetyCosts(lane - 1) < 0.2)
+                        if (LaneCost(lane - 1) < 0.2)
                         {
                             lane -= 1;
                         }
@@ -180,17 +184,17 @@ json PathPlanner::path()
                 // reduce speed if lane change is not possible
                 if (lane == ego.lane)
                 {
-                    too_close = true;
+                    vehicle_is_too_close = true;
                 }
             }
         }
     }
 
-    if (too_close)
+    if (vehicle_is_too_close)
     {
         ref_velocity -= 0.224;
     }
-    else if (ref_velocity < MAX_SPEED_MPH)
+    else if (ref_velocity < MAX_LONG_SPEED_MPH)
     {
         ref_velocity += 0.224;
     }
@@ -204,8 +208,8 @@ json PathPlanner::path()
 
     if (prev_size < 2)
     {
-        double prev_car_x = ego.x - cos(ego.yaw);
-        double prev_car_y = ego.y - sin(ego.yaw);
+        double prev_car_x = ego.x - cos(ego.yaw_deg);
+        double prev_car_y = ego.y - sin(ego.yaw_deg);
 
         ptsx.push_back(prev_car_x);
         ptsx.push_back(ego.x);
@@ -227,7 +231,7 @@ json PathPlanner::path()
         ptsy.push_back(ref_y);
     }
 
-    double destinationD = centerLaneD(lane);
+    double destinationD = DisplacementFromCenterLine(lane);
     vector<double> next_wp0 = getXY(car_s + 35, destinationD, map_waypoints_s_,
                                     map_waypoints_x_, map_waypoints_y_);
     vector<double> next_wp1 = getXY(car_s + 60, destinationD, map_waypoints_s_,

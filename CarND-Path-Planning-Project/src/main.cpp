@@ -7,13 +7,12 @@
 
 #include "helpers.h"
 #include "json.hpp"
-#include "path_planner.h"
+#include "motion_planning.h"
 #include "vehicle.h"
 
 #include "Eigen/Core"
 #include "Eigen/Dense"
 #include "Eigen/QR"
-// #include "unsupported/Eigen/src/Splines/Spline.h"
 #include "Spline/spline.h"
 
 // for convenience
@@ -60,11 +59,11 @@ int main()
     map_waypoints_dy.push_back(d_y);
   }
 
-  PathPlanner path_planner(map_waypoints_x, map_waypoints_y, map_waypoints_s, map_waypoints_dx, map_waypoints_dy);
+  MotionPlanner motion_planning(map_waypoints_x, map_waypoints_y, map_waypoints_s, map_waypoints_dx, map_waypoints_dy);
 
   h.onMessage(
-      [&path_planner](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
-                      uWS::OpCode opCode) {
+      [&motion_planning](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
+                         uWS::OpCode opCode) {
         // "42" at the start of the message means there's a websocket message event.
         // The 4 signifies a websocket message
         // The 2 signifies a websocket event
@@ -81,37 +80,12 @@ int main()
 
             if (event == "telemetry")
             {
-              // // j[1] is the data JSON object
-
-              // // Main car's localization Data
-              // double car_x = j[1]["x"];
-              // double car_y = j[1]["y"];
-              // double car_s = j[1]["s"];
-              // double car_d = j[1]["d"];
-              // double car_yaw = j[1]["yaw"];
-              // double car_speed = j[1]["speed"];
-
-              // // Previous path data given to the Planner
-              // auto previous_path_x = j[1]["previous_path_x"];
-              // auto previous_path_y = j[1]["previous_path_y"];
-              // // Previous path's end s and d values
-              // double end_path_s = j[1]["end_path_s"];
-              // double end_path_d = j[1]["end_path_d"];
-
-              // // Sensor Fusion Data, a list of all other cars on the same side
-              // //   of the road.
-              // auto sensor_fusion = j[1]["sensor_fusion"];
-
-              // vector<double> next_x_vals;
-              // vector<double> next_y_vals;
-
               /**
-           * TODO: define a path made up of (x,y) points that the car will visit
-           *   sequentially every .02 seconds
+            Path made up of (x,y) points that the car will visit sequentially every .02 seconds
            */
 
-              path_planner.updateSensorFusion(j);
-              json msgJson = path_planner.path();
+              motion_planning.UpdateFusedRoadModel(j);
+              json msgJson = motion_planning.Path();
 
               // msgJson["next_x"] = next_x_vals;
               // msgJson["next_y"] = next_y_vals;

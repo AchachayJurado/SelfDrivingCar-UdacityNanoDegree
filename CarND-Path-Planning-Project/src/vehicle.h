@@ -27,12 +27,12 @@ public:
  double vy;
  double x;
  double y;
- double yaw;     //!< yaw in degrees
- double yaw_rad; //!< yaw in radians
+ double yaw_deg; // yaw in degrees
+ double yaw_rad; // yaw in radians
  int id;
 
- int lane;     //!< Is calculated by dividing d through lane width
- double speed; //!< Calculated from vx and vy
+ int lane;     // Calculated by dividing distance/lane width
+ double speed; // Calculated from vx and vy
 
  void fillNextTickPositions(std::vector<double> &x, std::vector<double> &y, const int count);
 };
