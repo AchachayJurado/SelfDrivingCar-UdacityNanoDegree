@@ -96,15 +96,11 @@ The cost of the lane is calculated to make sure that the ego vehicle stays in it
 
 ```cpp
 double MotionPlanner::LaneCost(int lane) {
-  // find vehicles in the lane that might cause trouble
-  // cars in the safety distance before or behind us
   double safety_costs = 0.0;
   for (Vehicle vehicle : vehicles) {
     if (vehicle.lane == lane) {
-      if ((wrappedDistance(vehicle.s, ego.s) < safetyDistance(vehicle.speed)) /* ego in front of vehicle */
-          || (wrappedDistance(ego.s, vehicle.s) < safetyDistance(ego.speed)) /* ego vehicle in front of ego */) {
-        safety_costs += 1.0;
-      }
+      if ((wrappedDistance(vehicle.s, ego.s) < safetyDistance(vehicle.speed)) 
+          || (wrappedDistance(ego.s, vehicle.s) < safetyDistance(ego.speed)) {safety_costs += 1.0;}
     }
   }
   return safety_costs;
