@@ -81,10 +81,9 @@ int main()
           double throttle_value = controller.Throttle();
 
           // DEBUG
-          std::cout << "CTE: " << cte << " Steering Value: " << steering_angle
-                    << std::endl;
-
-          std::cout << "CTE: " << cte << " Steering Value: " << throttle_value
+          std::cout << "CTE: " << cte << " Speed: " << speed
+                    << " Steering Value: " << steering_angle
+                    << " Throttle Value: " << throttle_value
                     << std::endl;
 
           json msgJson;
