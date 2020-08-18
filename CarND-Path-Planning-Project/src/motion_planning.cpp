@@ -1,8 +1,8 @@
 
 #include "motion_planning.h"
 #include "algorithm"
-#include "config.h"
 #include "helpers.h"
+#include "params.h"
 
 // Map waypoints
 MotionPlanner::MotionPlanner(vector<double> map_waypoints_x,
